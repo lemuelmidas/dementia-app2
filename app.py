@@ -1,152 +1,136 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": 2,
-   "metadata": {},
-   "outputs": [
-    {
-     "ename": "ModuleNotFoundError",
-     "evalue": "No module named 'xgboost'",
-     "output_type": "error",
-     "traceback": [
-      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
-      "\u001b[1;31mModuleNotFoundError\u001b[0m                       Traceback (most recent call last)",
-      "\u001b[1;32mc:\\Users\\Wommack\\dementia2\\dementia-app2\\index.ipynb Cell 1\u001b[0m in \u001b[0;36m<cell line: 19>\u001b[1;34m()\u001b[0m\n\u001b[0;32m     <a href='vscode-notebook-cell:/c%3A/Users/Wommack/dementia2/dementia-app2/index.ipynb#W0sZmlsZQ%3D%3D?line=14'>15</a>\u001b[0m warnings\u001b[39m.\u001b[39mfilterwarnings(\u001b[39m\"\u001b[39m\u001b[39mignore\u001b[39m\u001b[39m\"\u001b[39m)\n\u001b[0;32m     <a href='vscode-notebook-cell:/c%3A/Users/Wommack/dementia2/dementia-app2/index.ipynb#W0sZmlsZQ%3D%3D?line=18'>19</a>\u001b[0m \u001b[39mwith\u001b[39;00m \u001b[39mopen\u001b[39m(\u001b[39m'\u001b[39m\u001b[39mmodel_xgb.pkl\u001b[39m\u001b[39m'\u001b[39m, \u001b[39m'\u001b[39m\u001b[39mrb\u001b[39m\u001b[39m'\u001b[39m) \u001b[39mas\u001b[39;00m f:\n\u001b[1;32m---> <a href='vscode-notebook-cell:/c%3A/Users/Wommack/dementia2/dementia-app2/index.ipynb#W0sZmlsZQ%3D%3D?line=19'>20</a>\u001b[0m     model\u001b[39m=\u001b[39m pickle\u001b[39m.\u001b[39;49mload(f)\n\u001b[0;32m     <a href='vscode-notebook-cell:/c%3A/Users/Wommack/dementia2/dementia-app2/index.ipynb#W0sZmlsZQ%3D%3D?line=21'>22</a>\u001b[0m \u001b[39mwith\u001b[39;00m \u001b[39mopen\u001b[39m(\u001b[39m'\u001b[39m\u001b[39mcolumns.pkl\u001b[39m\u001b[39m'\u001b[39m, \u001b[39m'\u001b[39m\u001b[39mrb\u001b[39m\u001b[39m'\u001b[39m) \u001b[39mas\u001b[39;00m f:\n\u001b[0;32m     <a href='vscode-notebook-cell:/c%3A/Users/Wommack/dementia2/dementia-app2/index.ipynb#W0sZmlsZQ%3D%3D?line=22'>23</a>\u001b[0m     model_columns\u001b[39m=\u001b[39m pickle\u001b[39m.\u001b[39mload(f)\n",
-      "\u001b[1;31mModuleNotFoundError\u001b[0m: No module named 'xgboost'"
-     ]
-    }
-   ],
-   "source": [
-    "from pywebio.platform.flask import webio_view\n",
-    "from pywebio import STATIC_PATH\n",
-    "from flask import Flask, send_from_directory\n",
-    "from pywebio.input import *\n",
-    "from pywebio.output import *\n",
-    "from pywebio import start_server\n",
-    "from pywebio.exceptions import SessionClosedException\n",
-    "import pandas as pd\n",
-    "import pickle\n",
-    "import warnings\n",
-    "import argparse\n",
-    "\n",
-    "app= Flask(__name__)\n",
-    "\n",
-    "warnings.filterwarnings(\"ignore\")\n",
-    "\n",
-    "\n",
-    "\n",
-    "with open('model_xgb.pkl', 'rb') as f:\n",
-    "    model= pickle.load(f)\n",
-    "\n",
-    "with open('columns.pkl', 'rb') as f:\n",
-    "    model_columns= pickle.load(f)\n",
-    "    \n",
-    "def prediction(prediction_df):\n",
-    "    model = pickle.load(open('model_xgb.pkl', 'rb'))\n",
-    "    query= pd.DataFrame(prediction_df, index= [0])\n",
-    "    result=list(model.predict(query))\n",
-    "    final_result= round(result[0],3)\n",
-    "    \n",
-    "    return final_result\n",
-    "\n",
-    "def values():\n",
-    "    put_markdown(\n",
-    "    '''\n",
-    "    #Dementia Prediction Web App\n",
-    "    '''\n",
-    "    , lstrip=True\n",
-    "    )\n",
-    "    \n",
-    "    model_inputs= input_group(\n",
-    "    \"Enter the following information\",\n",
-    "    [\n",
-    "        select(\"Visit\", name='visit', options= [('One', 1), ('Two', 2), ('Three', 3), ('Four', 4), ('Five', 5)]),\n",
-    "        input(\"MR Delay\", name= 'mr_delay', type= FLOAT),\n",
-    "        radio(\"What's your gender?\", name='gender', options= [('Male', 1), ('Female', 0)]),\n",
-    "        input(\"Your Age\", name= 'age', type= FLOAT),\n",
-    "        input(\"EDUC\", name= 'educ', type= FLOAT),\n",
-    "        select(\"SES\", name='ses', options= [('One', 1), ('Two', 2), ('Three', 3), ('Four', 4)]),\n",
-    "        input(\"MMSE\", name= 'mmse', type= FLOAT),\n",
-    "        input(\"eTIV\", name= 'etiv', type= FLOAT),\n",
-    "        input(\"nWBV\", name= 'nwbv', type= FLOAT),\n",
-    "        input(\"ASF\", name= 'asf', type= FLOAT),\n",
-    "        select(\"CDR\", name='cdr', options= [('None', 0), ('Half', 0.5), ('One', 1), ('Two', 2)]),\n",
-    "    ])\n",
-    "    \n",
-    "    \n",
-    "    prediction_df= pd.DataFrame(data= [[model_inputs[i] for i in ['visit', 'mr_delay', 'gender', 'age', 'educ','ses', 'mmse', 'cdr', 'etiv','nwbv','asf']]],\n",
-    "                               columns= ['Visit', 'MR Delay', 'M/F', 'Age', 'EDUC', 'SES', 'MMSE', 'CDR', 'eTIV', 'nWBV','ASF'])\n",
-    "    \n",
-    "    DementiaCategory= prediction(prediction_df)\n",
-    "    #prediction_text=''\n",
-    "    if DementiaCategory<=0:\n",
-    "        put_markdown(\"You are converted\")\n",
-    "    \n",
-    "    elif DementiaCategory<=1:\n",
-    "        put_markdown(\"You are demented\")\n",
-    "    \n",
-    "    else:\n",
-    "        put_markdown(\"You are non-demented\")\n",
-    "    \n",
-    "    \n",
-    "app.add_url_rule('/tool', 'webio_view', webio_view(values), methods=['GET', 'POST','OPTIONS'])\n",
-    "    \n",
-    "    \n",
-    "if __name__== '__main__':\n",
-    "    parser= argparse.ArgumentParser()\n",
-    "    parser.add_argument(\"-p\", \"--port\", type= int, default= 8080)\n",
-    "    args= parser.parse_args()\n",
-    "        \n",
-    "    start_server(values, port= args.port)\n",
-    "    \n",
-    "        \n",
-    "        \n",
-    "        \n",
-    "    \n",
-    "#if __name__== '__main__':\n",
-    "#    try:\n",
-    "        \n",
-    "#        main()\n",
-    "#    except SessionClosedException:\n",
-    "#        print(\"The session was closed unexpectedly\")\n",
-    "        \n",
-    "        \n",
-    "        "
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3.10.6 64-bit",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.10.6"
-  },
-  "vscode": {
-   "interpreter": {
-    "hash": "369f2c481f4da34e4445cda3fffd2e751bd1c4d706f27375911949ba6bb62e1c"
-   }
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 4
-}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df= pd.read_csv("C:/Users/Wommack/Desktop/ML/dementia_dataset.csv")
+df.head()
+
+#DATA CLEANING AND EXPLORATORY DATA ANALYSIS
+
+#df.columns
+#df.info()
+#df.describe()
+#df.corr()
+#sns.heatmap(df.corr(), annot= True, cmap= 'Reds')
+#df['Subject ID'].unique()
+# Subject_ID is dropped because it is unifor across all instances.
+df=df.drop('Subject ID', axis= 1)
+#df.head()
+# MRI_ID is dropped because it is unifor across all instances.
+#df['MRI ID'].unique()
+df=df.drop('MRI ID', axis= 1)
+#df.head()
+#df['Group'].unique()
+#Label Encoding of 'Group' Feature
+
+from sklearn.preprocessing import LabelEncoder
+le= LabelEncoder()
+df['Group']= le.fit_transform(df['Group'])
+#df['Group'].unique()
+#df.head()
+#df['Visit'].unique()
+#df['M/F'].unique()
+#Binary Encoding of df['M/F']
+df['M/F']= df['M/F'].apply(lambda x: 1 if x == 'M' else (0 if x == 'F' else None))
+#df['M/F'].unique()
+#df['Hand'].unique()
+#the Hand column is dropped because its instances are the same for all rows
+df= df.drop('Hand',axis=1)
+#df.head()
+#df['Age'].unique()
+#df['EDUC'].unique()
+#df['SES'].unique()
+#df['SES'].mode()
+#Replacing the nan values with the mode=2, since the mean is almost 2
+df['SES']= df['SES'].replace(np.nan, 2)
+#df['SES'].unique()
+#df['SES'].value_counts()
+#df['MMSE'].unique()
+#print(df['MMSE'].mode())#,"\n",
+#print(df['MMSE'].mean())#,"\n",
+#print(df['MMSE'].value_counts())
+#print(df['MMSE'].mode())#,"\n",
+#print(df['MMSE'].mean())#,"\n",
+#print(df['MMSE'].value_counts())
+#df['MMSE'].isnull().sum()
+#Replacing the nan values with the mode=30, since nan values are 2 and mode =30.
+df['MMSE']= df['MMSE'].replace(np.nan, 30)
+#df['MMSE'].unique()
+#df['CDR'].unique()
+#df['eTIV'].unique()
+#df['nWBV'].unique()
+#df['ASF'].unique()
+#df.head(10)
+X= df.drop('Group', axis=1)
+y=df['Group']
+#print(X.shape, y.shape)
+#BASE MODEL
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test= train_test_split(X, y, test_size= 0.3, random_state= 48 )
+from sklearn.ensemble import ExtraTreesClassifier,RandomForestClassifier,AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet, SGDClassifier
+from sklearn.model_selection import GridSearchCV, cross_val_score,StratifiedKFold
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn import linear_model
+from sklearn.tree import DecisionTreeClassifier
+import xgboost as xgb
+from sklearn import metrics
+import random as rd
+
+def model_evaluation(X,y):
+    X_train,X_test, y_train, y_test= train_test_split(X, y, test_size= 0.3, random_state= 48 )
+    models = [("Naive Bayes", GaussianNB()),
+          ("KNN", KNeighborsClassifier()),
+          ("DTC", DecisionTreeClassifier()),
+          ("SGD", SGDClassifier()),
+          ("Ada", AdaBoostClassifier()),
+          ("RFC",RandomForestClassifier()),
+          ("Extra:",ExtraTreesClassifier()),
+          ("XGB:", xgb.XGBClassifier())
+              
+              
+         ]
+    means = []
+    stds = []
+
+    for name, classifier in models:
+        scores = []
+        for _ in range(10):
+            model = classifier
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            Accuracy=metrics.accuracy_score(y_test,y_pred)
+
+            scores.append(Accuracy)
+
+        means.append(np.mean(scores))
+        stds.append(np.std(scores))
+        
+    Total = list(zip(means,stds))
+    hsh = {}
+    for j in range(len(models)):
+        hsh[models[j][0]] = list(Total[j])
+        
+        
+    data = pd.DataFrame(hsh)
+    db1=data.transpose()
+    db1.columns=['mean','std']
+    
+    return db1
+a=model_evaluation(df.drop('Group', axis=1),df['Group'])
+#print(a)
+
+model_xgb= xgb.XGBClassifier()
+model_xgb.fit(X_train, y_train)
+pred= model_xgb.predict(X_test)
+
+import pickle
+#filename='model_xgb.pkl'
+#pickle.dump(model_xgb, open(filename, 'wb'))
+
+#model_columns=list(X.columns)
+#with open('columns.pkl', 'wb') as file:
+#    pickle.dump(model_columns, file)
