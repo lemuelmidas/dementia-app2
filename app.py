@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df= pd.read_csv("C:/Users/Wommack/Desktop/ML/dementia_dataset.csv")
+df= pd.read_csv("dementia_dataset.csv")
 df.head()
 
 #DATA CLEANING AND EXPLORATORY DATA ANALYSIS
