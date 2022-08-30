@@ -16,6 +16,7 @@ entrypoints==0.4
 executing==0.9.1
 Flask==2.2.2
 fonttools==4.37.1
+gunicorn==19.9.0
 ipykernel==6.15.1
 ipython==8.4.0
 ipython-genutils==0.2.0
