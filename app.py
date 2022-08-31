@@ -123,14 +123,16 @@ def model_evaluation(X,y):
 a=model_evaluation(df.drop('Group', axis=1),df['Group'])
 #print(a)
 
-model_xgb= xgb.XGBClassifier()
-model_xgb.fit(X_train, y_train)
-pred= model_xgb.predict(X_test)
+model_Extra= ExtraTreesClassifier()
+model_Extra.fit(X_train, y_train)
+pred2= model_Extra.predict(X_test)
 
 import pickle
-#filename='model_xgb.pkl'
-#pickle.dump(model_xgb, open(filename, 'wb'))
+filename2='model_xgb.Extra'
+#pickle.dump(model_Extra, open(filename2, 'wb'))
 
-#model_columns=list(X.columns)
-#with open('columns.pkl', 'wb') as file:
-#    pickle.dump(model_columns, file)
+#model_columns2=list(X.columns)
+#with open('columns2.pkl', 'wb') as file:
+#    pickle.dump(model_columns2, file)
+
+
