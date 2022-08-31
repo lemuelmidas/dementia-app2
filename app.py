@@ -76,7 +76,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn import linear_model
 from sklearn.tree import DecisionTreeClassifier
-import xgboost as xgb
+#import xgboost as xgb
 from sklearn import metrics
 import random as rd
 
@@ -89,7 +89,7 @@ def model_evaluation(X,y):
           ("Ada", AdaBoostClassifier()),
           ("RFC",RandomForestClassifier()),
           ("Extra:",ExtraTreesClassifier()),
-          ("XGB:", xgb.XGBClassifier())
+          #("XGB:", xgb.XGBClassifier())
               
               
          ]
